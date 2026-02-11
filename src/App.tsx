@@ -9,7 +9,7 @@ import { TodoList } from './components/TodoList';
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todos[]>([]);
   const [title, setTitle] = useState<string>('');
-  const [currentUser, setCurrentUser] = useState<number>(0);
+  const [currentUser, setCurrentUser] = useState<number | string>('');
   const [errorTitle, setErrorTitle] = useState(false);
   const [errorUser, setErrorUser] = useState(false);
 
@@ -41,7 +41,7 @@ export const App: React.FC = () => {
     setErrorTitle(false);
   };
 
-  const selectUser = (val: number) => {
+  const selectUser = (val: number | string) => {
     setCurrentUser(val);
     setErrorUser(false);
   };
@@ -62,8 +62,8 @@ export const App: React.FC = () => {
         id: getMaxId(),
         title: title,
         completed: false,
-        userId: +currentUser,
-        user: usersFromServer.find(user => user.id === +currentUser),
+        userId: Number(currentUser),
+        user: usersFromServer.find(user => user.id === Number(currentUser)),
       };
 
       setTodos([...todos, newTodo]);
@@ -80,7 +80,11 @@ export const App: React.FC = () => {
     <div className="App">
       <h1>Add todo form</h1>
 
-      <form action="/api/todos" method="POST" onSubmit={event => addTodo(event)}>
+      <form
+        action="/api/todos"
+        method="POST"
+        onSubmit={event => addTodo(event)}
+      >
         <div className="field">
           <label htmlFor="todo-title">Title</label>
           <input
@@ -102,14 +106,14 @@ export const App: React.FC = () => {
             id="todo-user"
             data-cy="userSelect"
             value={currentUser}
-            onChange={event => selectUser(Number(event.target.value))}
+            onChange={event => selectUser(event.target.value)}
           >
-            <option value={0} disabled>
+            <option value="" disabled>
               Choose a user
             </option>
             {usersFromServer.map(user => {
               return (
-                <option key={user.id} value={Number(user.id)}>
+                <option key={user.id} value={user.id}>
                   {user.name}
                 </option>
               );
@@ -121,10 +125,7 @@ export const App: React.FC = () => {
           )}
         </div>
 
-        <button
-          type="submit"
-          data-cy="submitButton"
-        >
+        <button type="submit" data-cy="submitButton">
           Add
         </button>
       </form>
